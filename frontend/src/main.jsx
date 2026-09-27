@@ -1,22 +1,55 @@
-import React,{useMemo,useState} from 'react';
-import ReactDOM from 'react-dom/client';
-import './styles.css';
+import React, { useState } from "react";
+import ReactDOM from "react-dom/client";
 
-const API=import.meta.env.VITE_API_URL||'';
-const crops=['Rice','Wheat','Maize','Tomato','Potato','Cotton'];
-const states=['West Bengal','Punjab','Uttar Pradesh','Maharashtra','Bihar','Karnataka'];
-const districts={'West Bengal':['Nadia','Bardhaman','Murshidabad','Hooghly'],Punjab:['Ludhiana','Amritsar','Patiala','Bathinda'],'Uttar Pradesh':['Lucknow','Agra','Kanpur Nagar','Varanasi'],Maharashtra:['Nashik','Pune','Nagpur','Ahmednagar'],Bihar:['Patna','Muzaffarpur','Gaya','Bhagalpur'],Karnataka:['Mysuru','Belagavi','Dharwad','Mandya']};
-const T={English:{analyze:'Analyze Farm',dash:'Intelligence Dashboard',risk:'Overall Crop Risk',action:'AI Action Plan',why:'Why this risk?',immediate:'Next 24 hours',days:'Next 3 days',regen:'Regenerative practices',demo:'Demo Mode'},Hindi:{analyze:'खेत का विश्लेषण करें',dash:'कृषि इंटेलिजेंस डैशबोर्ड',risk:'कुल फसल जोखिम',action:'AI कार्य योजना',why:'जोखिम क्यों है?',immediate:'अगले 24 घंटे',days:'अगले 3 दिन',regen:'पुनर्योजी कृषि अभ्यास',demo:'डेमो मोड'},Bengali:{analyze:'খামার বিশ্লেষণ করুন',dash:'কৃষি ইন্টেলিজেন্স ড্যাশবোর্ড',risk:'মোট ফসল ঝুঁকি',action:'AI কর্মপরিকল্পনা',why:'ঝুঁকি কেন?',immediate:'পরবর্তী ২৪ ঘণ্টা',days:'পরবর্তী ৩ দিন',regen:'পুনর্জীবনশীল কৃষি',demo:'ডেমো মোড'}};
-function demo(f){const phNum=Number(f?.ph)||6.5;const moistNum=Number(f?.moisture)||60;const wr=f.crop==='Rice'?82:61;const sr=Math.min(86,Math.round(35+Math.abs(phNum-6.5)*18+(moistNum*.12)));const ir=f.image?78:63;const sat=68;const overall=Math.round(ir*.32+wr*.28+sr*.2+sat*.2);
-function cls(n){return n>=70?'high':n>=40?'medium':'low'}
-function App(){const[f,setF]=useState({crop:'Rice',state:'West Bengal',district:'Nadia',age:45,soil:'Loamy',ph:5.8,moisture:82,nitrogen:'Low',phosphorus:'Medium',potassium:'Medium',image:null});const[lang,setLang]=useState('English'),[result,setResult]=useState(null),[loading,setLoading]=useState(false),[err,setErr]=useState('');const t=T[lang];const imageUrl=useMemo(()=>f.image?URL.createObjectURL(f.image):'', [f.image]);const upd=(k,v)=>setF(x=>({...x,[k]:v}));
-async function analyze(){setLoading(true);setErr('');try{if(!API){await new Promise(r=>setTimeout(r,1200));setResult(demo(f));return;}const fd=new FormData();Object.entries(f).forEach(([k,v])=>{if(k!=='image')fd.append(k,v)});if(f.image)fd.append('crop_image',f.image);fd.append('language',lang);const r=await fetch(`${API}/api/analyze`,{method:'POST',body:fd});if(!r.ok)throw Error();setResult(await r.json())}catch(e){setErr('Live AI backend unavailable — showing clearly labelled demo result.');setResult(demo(f))}finally{setLoading(false)}}
-return <div className="app"><header className="nav"><div className="brand"><div className="mark">🌾</div><div><strong>AgriShield</strong><span>AI</span><small>AGRICULTURAL INTELLIGENCE</small></div></div><div className="navright"><i/>India-ready<select value={lang} onChange={e=>setLang(e.target.value)}><option>English</option><option>Hindi</option><option>Bengali</option></select></div></header><main>
-<section className="hero"><div><div className="eyebrow">TRACK 4 · AGRIN & REGENERATIVE AGRICULTURAL INTELLIGENCE</div><h1>See the risk.<br/><em>Understand the farm.</em><br/>Act before crop loss.</h1><p>One intelligence layer combining crop vision, weather, soil and satellite-health signals into localized AI advisories for farmers.</p><div className="buttons"><button className="primary" onClick={()=>document.getElementById('farm').scrollIntoView({behavior:'smooth'})}>Start Farm Analysis →</button><a href="#how">How it works</a></div></div><div className="heroVisual"><div className="orbit"/><div className="phone"><small>AGRI INTELLIGENCE <b>● LIVE</b></small><div className="phoneRisk"><span>FIELD RISK<strong>76%</strong></span><b>HIGH</b></div><div className="bars"><i/><i/><i/></div><div className="map">NDIA <b>●</b></div></div><label className="float a">📷 Gemini Vision</label><label className="float b">🌦 Weather Risk</label><label className="float c">🛰 Satellite Signal</label></div></section>
-<section className="strip"><div><b>GEMINI</b><span>Multimodal crop reasoning</span></div><div><b>ML</b><span>Predictive risk engine</span></div><div><b>GEO</b><span>Location & satellite ready</span></div><div><b>INDIA</b><span>Multilingual advisory</span></div></section>
-<section id="farm" className="section"><div className="heading"><div><div className="eyebrow">01 · FARM PROFILE</div><h2>Tell us about the field</h2></div><span className="badge">● {t.demo}</span></div><div className="grid2"><div className="panel"><Title icon="⌖" title="Farm details" sub="Localized context improves the advisory."/><div className="formgrid"><Field name="Crop"><select value={f.crop} onChange={e=>upd('crop',e.target.value)}>{crops.map(x=><option key={x}>{x}</option>)}</select></Field><Field name="Crop age (days)"><input type="number" value={f.age} onChange={e=>upd('age',e.target.value)}/></Field><Field name="State"><select value={f.state} onChange={e=>{upd('state',e.target.value);upd('district',districts[e.target.value][0])}}>{states.map(x=><option key={x}>{x}</option>)}</select></Field><Field name="District"><select value={f.district} onChange={e=>upd('district',e.target.value)}>{districts[f.state].map(x=><option key={x}>{x}</option>)}</select></Field><Field name="Soil type"><select value={f.soil} onChange={e=>upd('soil',e.target.value)}><option>Loamy</option><option>Clay</option><option>Sandy</option><option>Alluvial</option></select></Field><Field name="Soil moisture (%)"><input type="number" value={f.moisture} onChange={e=>upd('moisture',e.target.value)}/></Field><Field name="Soil pH"><input type="number" step="0.1" value={f.ph} onChange={e=>upd('ph',e.target.value)}/></Field><Field name="Nitrogen"><select value={f.nitrogen} onChange={e=>upd('nitrogen',e.target.value)}><option>Low</option><option>Medium</option><option>High</option></select></Field><Field name="Phosphorus"><select value={f.phosphorus} onChange={e=>upd('phosphorus',e.target.value)}><option>Low</option><option>Medium</option><option>High</option></select></Field><Field name="Potassium"><select value={f.potassium} onChange={e=>upd('potassium',e.target.value)}><option>Low</option><option>Medium</option><option>High</option></select></Field></div></div><div className="panel upload"><Title icon="◉" title="Crop vision" sub="Upload a clear leaf or crop photo."/><label className="drop">{imageUrl?<img src={imageUrl}/> : <><strong>📷</strong><b>Drop crop image here</b><span>JPG / PNG · Gemini multimodal analysis</span></>}<input type="file" accept="image/*" onChange={e=>upd('image',e.target.files?.[0]||null)}/></label><button className="primary full" onClick={analyze} disabled={loading}>{loading?'Analyzing farm…':`${t.analyze} →`}</button>{err&&<div className="notice">{err}</div>}</div></div></section>
-{result&&<section className="section results"><div className="heading"><div><div className="eyebrow">02 · {t.dash}</div><h2>Farm intelligence report</h2></div><span className={`risk ${cls(result.overall_risk)}`}>● {result.risk_level} RISK</span></div><div className="metrics"><div className="metric main"><span>{t.risk}</span><strong>{result.overall_risk}<small>%</small></strong><div className="meter"><i style={{width:`${result.overall_risk}%`}}/></div><b>{result.risk_level}</b><p>Fused from image, weather, soil and satellite-health signals.</p></div><Metric title="Gemini Vision" value={Math.round(result.confidence*100)} label={result.detected_stress}/><Metric title="Weather Risk" value={result.weather_risk} label={`${result.weather.temperature}°C · ${result.weather.humidity}% humidity`}/><Metric title="Soil Risk" value={result.soil_risk} label={`pH ${result.soil.ph}`}/><Metric title="Satellite Signal" value={result.satellite_risk} label={`${result.vegetation_index} NDVI · ${result.vegetation_trend}`}/></div><div className="grid2 insight"><div className="panel"><Title icon="!" title={t.why} sub="Multiple signals are fused instead of relying on a single diagnosis."/><ul>{result.why.map((x,i)=><li key={i}>✓ <span>{x}</span></li>)}</ul></div><div className="panel"><Title icon="◎" title="Live farm signals" sub="Context used by the risk engine."/><div className="signals"><p>Temperature <b>{result.weather.temperature}°C</b></p><p>Humidity <b>{result.weather.humidity}%</b></p><p>Rain forecast <b>{result.weather.rainfall} mm</b></p><p>Soil moisture <b>{result.soil.moisture}%</b></p><p>Vegetation <b>{result.vegetation_trend}</b></p></div></div></div><div className="advisory"><div className="advHead"><div><div className="eyebrow">03 · GEMINI ADVISOR</div><h2>{t.action}</h2></div><small>AI-assisted · Human verification recommended</small></div><div className="advice"><Advice title={t.immediate} items={result.immediate_actions} icon="⚡"/><Advice title={t.days} items={result.three_day_actions} icon="◷"/><Advice title={t.regen} items={result.regenerative_actions} icon="🌱"/></div></div><div className="sources panel"><div><div className="eyebrow">DATA SIGNALS</div><h3>Transparent by design</h3></div><div>{result.sources.map((x,i)=><span key={i}>✓ {x}</span>)}</div></div></section>}
-<section id="how" className="section"><div className="heading"><div><div className="eyebrow">HOW IT WORKS</div><h2>One farm. Four intelligence layers.</h2></div></div><div className="flow">{[['01','📷','Vision','Gemini analyses crop symptoms from an uploaded image.'],['02','🌦','Context','Weather + soil + crop stage create local context.'],['03','🛰','Signals','Satellite-health adapter adds vegetation trend information.'],['04','🤖','Decision','ML risk fusion + Gemini produces a localized action plan.']].map(x=><div className="flowcard" key={x[0]}><small>{x[0]}</small><div>{x[1]}</div><h3>{x[2]}</h3><p>{x[3]}</p></div>)}</div></section>
-<section className="scale"><div><div className="eyebrow">BUILT FOR INDIA · DESIGNED TO SCALE</div><h2>From one field to a shared agricultural intelligence layer.</h2><p>State/district context, common farm-data schema, multilingual advisory and cloud deployment can extend across Indian states and later support interoperable agricultural networks.</p></div><div className="scalevisual"><span className="india">INDIA</span><span className="br br1">BR</span><span className="br br2">ZA</span><span className="br br3">CN</span><span className="br br4">IN</span></div></section></main><footer><div className="brand"><div className="mark">🌾</div><div><strong>AgriShield</strong><span>AI</span></div></div><span>Track 4 · Agricultural Intelligence · Prototype</span><span>2026</span></footer></div>}
-function Title({icon,title,sub}){return <div className="title"><i>{icon}</i><div><h3>{title}</h3><p>{sub}</p></div></div>};function Field({name,children}){return <label className="field">{name}{children}</label>};function Metric({title,value,label}){return <div className="metric"><span>{title}</span><strong>{value}<small>%</small></strong><div className="line"><i style={{width:`${value}%`}}/></div><p>{label}</p></div>};function Advice({title,items,icon}){return <div className="advicecard"><h3>{icon} {title}</h3><ul>{items.map((x,i)=><li key={i}>{x}</li>)}</ul></div>}
+function demo(f){
+  const phNum = Number(f.ph) || 6.5;
+  const moistNum = Number(f.moisture) || 60;
+  const wr = f.crop === 'Rice' ? 82 : 61;
+  const sr = Math.min(86, Math.round(35 + Math.abs(phNum - 6.5) * 18 + (moistNum * 0.12)));
+  const ir = f.image ? 78 : 63;
+  const sat = 68;
+  const overall = Math.round(ir * 0.32 + wr * 0.28 + sr * 0.2 + sat * 0.2);
+  return { wr, sr, ir, sat, overall };
+}
+
+function Title(icon, title, sub){
+  return <div className="title"><i>{icon}</i><div><h3>{title}</h3><p>{sub}</p></div></div>;
+}
+
+function App(){
+  const [form, setForm] = useState({ crop: 'Rice', ph: '', moisture: '', image: null });
+  const [res, setRes] = useState(null);
+  
+  const onAnalyze = () => {
+    const r = demo(form);
+    setRes(r);
+  };
+
+  return (
+    <div style={{padding: '40px', fontFamily: 'Inter, sans-serif'}}>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        <div>
+          <h1 style={{fontSize: '42px', lineHeight: '1.1'}}>See the risk.<br/>Understand<br/>the farm.<br/>Act before crop<br/>loss.</h1>
+          <div style={{marginTop: '20px'}}>
+            <select value={form.crop} onChange={e=>setForm({...form, crop: e.target.value})}>
+              <option>Rice</option><option>Wheat</option><option>Maize</option>
+            </select>
+            <input placeholder="Soil pH (optional)" value={form.ph} onChange={e=>setForm({...form, ph: e.target.value})} style={{marginLeft: '10px'}} />
+            <input placeholder="Moisture % (optional)" value={form.moisture} onChange={e=>setForm({...form, moisture: e.target.value})} style={{marginLeft: '10px'}} />
+            <button onClick={onAnalyze} style={{marginLeft: '10px', background: '#0d3b2e', color: 'white', padding: '8px 16px', borderRadius: '8px'}}>Run Farm Analysis</button>
+          </div>
+          {res && <div style={{marginTop: '20px', background: '#f0fdf4', padding: '16px', borderRadius: '12px'}}>
+            <p>Overall Risk: {res.overall}%</p>
+            <p>Weather: {res.wr}% | Soil: {res.sr}% | Image: {res.ir}%</p>
+          </div>}
+        </div>
+        <div style={{background: '#0d6b4f', color: 'white', padding: '24px', borderRadius: '16px', minWidth: '200px', textAlign: 'center'}}>
+          <h2 style={{fontSize: '48px'}}>{res ? res.overall : 76}%</h2>
+          <p>NOAA</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);

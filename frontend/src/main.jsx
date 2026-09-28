@@ -105,17 +105,17 @@ function App() {
     setError("");
 
     try {
-      const phValue = Number(form.ph);
-      const moistureValue = Number(form.moisture);
-      const ageValue = Number(form.age);
+          const phValue = Number(form?.ph ?? 5.8);
+    const moistureValue = Number(form?.moisture ?? 82);
+    const ageValue = Number(form?.age ?? 30);
 
-      if (phValue < 0 || phValue > 14) {
-        throw new Error("Soil pH must be between 0 and 14.");
-      }
+          if (isNaN(phValue) || phValue < 0 || phValue > 14) {
+      throw new Error("Soil pH must be between 0 and 14.");
+    }
 
-      if (moistureValue < 0 || moistureValue > 100) {
-        throw new Error("Soil moisture must be between 0 and 100%.");
-      }
+    if (isNaN(moistureValue) || moistureValue < 0 || moistureValue > 100) {
+      throw new Error("Soil moisture must be between 0 and 100%.");
+    }
 
       if (ageValue < 0) {
         throw new Error("Crop age cannot be negative.");

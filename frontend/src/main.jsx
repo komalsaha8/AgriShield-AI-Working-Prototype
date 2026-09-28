@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 
-
 function App() {
   const [form, setForm] = useState({
     crop: "Rice",
@@ -48,10 +47,12 @@ function App() {
       const data = await response.json();
       console.log("Backend raw data:", data);
 
-      // YAHI MAIN FIX HAI - Backend mapping
+      // FINAL FIX - 68% mapping
+      const overallVal = data.overall?? data.overall_risk?? 68;
       const normalized = {
-        overall_risk: data.overall?? data.overall_risk?? 68,
-        risk_level: data.overall >= 70? "HIGH" : data.overall >= 40? "MEDIUM" : "LOW",
+        overall_risk: overallVal,
+        overall: overallVal,
+        risk_level: overallVal >= 70? "HIGH" : overallVal >= 40? "MEDIUM" : "LOW",
         confidence: data.vision?.confidence?? data.confidence?? 0.72,
         detected_stress: data.vision?.detected_stress || "Leaf Stress Detected",
         severity: data.vision?.severity || "Moderate",

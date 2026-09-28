@@ -296,11 +296,10 @@ function App() {
                 <strong>{result.overall_risk}<small>%</small></strong>
                 <div className="meter"><i style={{ width: `${result.overall_risk}%` }}></i></div>
                 <b>{result.risk_level}</b>
-                <p>Fused from image, weather, soil and satellite-health signals.</p>
-              </div>
-              <Metric title="Gemini Vision" value={Math.round(Number(result.confidence || 0) * 100)} label={result.detected_stress || result.disease || "Healthy"} />
-<Metric title="Weather Risk" value={result.weather_risk} label={`${result.weather?.temperature || 0}°C · ${result.weather?.humidity || 0}%`} />
-<Metric title="Soil Risk" value={result.soil_risk} label={`pH ${result.soil?.ph || result.soil?.pH || form?.ph || "5.8"}`} />
+                  <Metric title="Gemini Vision" value={Math.round(Number(result.confidence || 0) * 100)} label={result.detected_stress || "Healthy"} />
+    <Metric title="Weather Risk" value={result.weather_risk} label={`${result.weather?.temperature || 29}°C · ${result.weather?.humidity || 87}%`} />
+    <Metric title="Soil Risk" value={result.soil_risk} label={`pH ${result.soil?.ph || result.soil?.pH || form?.ph || "5.8"}`} />
+    <Metric title="Satellite Signal" value={result.satellite_risk} label={`${result.vegetation_index || "0.65"} NDVI`} />
 <Metric title="Satellite Signal" value={result.satellite_risk} label={`${result.vegetation_index || "0.6"} NDVI · ${result.vegetation_trend || "stable"}`} />
             <div className="grid2 insight">
               <div className="panel">

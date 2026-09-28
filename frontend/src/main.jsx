@@ -131,7 +131,7 @@ function App() {
       formData.append("ph", phValue);
       formData.append("moisture", moistureValue);
       formData.append("nitrogen", form.nitrogen);
-      formData.append("phosphorus", form.phosphorus);
+      formData.append("phosphorus", form?.phosphorus);
       formData.append("potassium", form.potassium);
       formData.append("language", language);
 
@@ -404,7 +404,7 @@ function App() {
                     min="0"
                     max="14"
                     step="0.1"
-                    value={form.ph}
+                    value={form?.ph}
                     onChange={(event) =>
                       updateForm("ph", event.target.value)
                     }
@@ -426,7 +426,7 @@ function App() {
 
                 <Field name="Phosphorus">
                   <select
-                    value={form.phosphorus}
+                    value={form?.phosphorus}
                     onChange={(event) =>
                       updateForm("phosphorus", event.target.value)
                     }
